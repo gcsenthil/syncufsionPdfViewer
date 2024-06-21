@@ -1,0 +1,115 @@
+﻿@page "/"
+@using Syncfusion.Blazor.Buttons;
+@using Syncfusion.Blazor.DropDowns;
+@using Syncfusion.Blazor.TreeGrid;
+@using Syncfusion.Blazor.PdfViewer
+@inject HttpClient Http
+
+<SfButton OnClick="Load114PageDoc">Load114PageDoc</SfButton>
+<SfButton OnClick="Load228PageDoc">Load228PageDoc</SfButton>
+<SfPdfViewer DocumentPath="@DocumentPath"
+             Height="100%"
+             @ref="@pdfviewer"
+             Width="100%"
+             ServiceUrl="https://ej2services.syncfusion.com/production/web-services/api/pdfviewer">
+    <PdfViewerToolbarSettings ToolbarItems="toolbarItems"></PdfViewerToolbarSettings>
+    <PdfViewerEvents Created="OnDocumentCreated"></PdfViewerEvents>
+</SfPdfViewer>
+
+
+@code {
+    private string DocumentPath { get; set; }
+
+    SfPdfViewer pdfviewer;
+
+    List<Syncfusion.Blazor.PdfViewer.ToolbarItem> toolbarItems = new List<Syncfusion.Blazor.PdfViewer.ToolbarItem>() {
+        Syncfusion.Blazor.PdfViewer.ToolbarItem.PrintOption,
+        Syncfusion.Blazor.PdfViewer.ToolbarItem.SearchOption,
+        Syncfusion.Blazor.PdfViewer.ToolbarItem.SelectionTool,
+        Syncfusion.Blazor.PdfViewer.ToolbarItem.MagnificationTool,
+        Syncfusion.Blazor.PdfViewer.ToolbarItem.PageNavigationTool
+
+    };
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+    }
+
+    private void OnDocumentCreated()
+    {
+        StateHasChanged();
+    }  
+
+    private async void Load114PageDoc()
+    {
+        var response = await Http.GetAsync("Data/hive-succinctly.pdf");
+        if (response.IsSuccessStatusCode)
+        {
+            var fileData = await response.Content.ReadAsByteArrayAsync();
+            var stream = new MemoryStream(fileData);
+            var docBytes = stream.ToArray();
+            var docBase64 = Convert.ToBase64String(docBytes);
+            DocumentPath = "data:application/pdf;base64," + docBase64;
+            StateHasChanged();
+        }
+        else
+        {
+            Console.WriteLine("Failed to load file. Status code: " + response.StatusCode);
+        }
+    }
+
+    private async void Load228PageDoc()
+    {
+        var response = await Http.GetAsync("Data/hive-succinctly-merged.pdf");
+        if (response.IsSuccessStatusCode)
+        {
+            var fileData = await response.Content.ReadAsByteArrayAsync();
+            var stream = new MemoryStream(fileData);
+            var docBytes = stream.ToArray();
+            var docBase64 = Convert.ToBase64String(docBytes);
+            DocumentPath = "data:application/pdf;base64," + docBase64;
+            StateHasChanged();
+        }
+        else
+        {
+            Console.WriteLine("Failed to load file. Status code: " + response.StatusCode);
+        }
+    }
+}
+
+
+<style>
+    .textnofound {
+        text-align: center;
+        padding-top: 18px;
+        color: red;
+    }
+
+    .toolbar {
+        color: white;
+        background: linear-gradient(135deg,#007f86,#00a1a4)
+    }
+
+    .pointer {
+        cursor: pointer;
+        font-size: 22px;
+    }
+
+    .pdf {
+        color: #ef4b22 !important;
+    }
+
+    .eye {
+        color: #69b244 !important;
+    }
+
+    .accessrequestform {
+        padding-top: 25vh;
+        width: 100%;
+        /* padding-left: 20%; */
+        text-align: center;
+        font-weight: 700;
+        font-size: 20px;
+    }
+</style>
